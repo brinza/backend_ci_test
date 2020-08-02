@@ -36,6 +36,8 @@
  * @filesource
  */
 
+class UserException extends Exception {
+}
 class ShadowIgniterException extends Exception {
 } // искючение когда надо вернуть всё назад, что то серьёзное
 class CriticalException extends Exception {

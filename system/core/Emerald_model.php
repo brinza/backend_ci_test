@@ -261,4 +261,24 @@ class CI_Emerald_Model {
             throw new ShadowIgniterException('Sparrow should be loaded before model accessing!');
         }
     }
+
+    /**
+     * @param array $params
+     * @param string $message
+     * @return static
+     * @throws UserException
+     */
+    public static function getOneByOrExcept(array $params, string $message = '')
+    {
+        $s = App::get_ci()->s->from(static::CLASS_TABLE);
+        foreach ($params as $field => $value) {
+            $s->where($field, $value);
+        }
+        $row = $s->one();
+        if (!$row) {
+            $message = $message ?: "Cant find entity " . static::CLASS_TABLE;
+            throw new UserException($message);
+        }
+        return (new static)->set($row);
+    }
 }

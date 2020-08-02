@@ -103,29 +103,30 @@
           href="/main_page/add_money">/main_page/add_money</a>
     </div>
   </div>
-
   <!-- Modal -->
-  <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-       aria-hidden="true">
+  <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModal" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Log in</h5>
+          <h5 class="modal-title" id="loginTitle">Log in</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
           <form>
+            <div class="alert alert-danger" role="alert" v-if="authError">
+              Wrong credentials
+            </div>
             <div class="form-group">
-              <label for="exampleInputEmail1">Please enter login</label>
+              <label for="inputEmail">Please enter login</label>
               <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" v-model="login" required>
               <div class="invalid-feedback" v-if="invalidLogin">
                 Please write a username.
               </div>
             </div>
             <div class="form-group">
-              <label for="exampleInputPassword1">Please enter password</label>
+              <label for="inputPassword">Please enter password</label>
               <input type="password" class="form-control" id="inputPassword" v-model="pass" required>
               <div class="invalid-feedback" v-show="invalidPass">
                 Please write a password.

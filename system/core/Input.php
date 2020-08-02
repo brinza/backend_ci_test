@@ -327,14 +327,14 @@ class CI_Input {
 	 * @param	bool	$xss_clean	Whether to apply XSS filtering
 	 * @return	mixed
 	 */
-	public function input_stream($index = NULL, $xss_clean = NULL)
+	public function input_stream($index = NULL, $xss_clean = true)
 	{
 		// Prior to PHP 5.6, the input stream can only be read once,
 		// so we'll need to check if we have already done that first.
 		if ( ! is_array($this->_input_stream))
 		{
 			// $this->raw_input_stream will trigger __get().
-			parse_str($this->raw_input_stream, $this->_input_stream);
+			$this->_input_stream = json_decode($this->raw_input_stream, true);
 			is_array($this->_input_stream) OR $this->_input_stream = array();
 		}
 
