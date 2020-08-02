@@ -114,6 +114,18 @@ var app = new Vue({
                         }, 500);
                     }
                 })
+        },
+        comment: function (id) {
+            var self = this;
+            axios.post('/main_page/comment', {
+                post_id: id,
+                message: self.commentText
+            }).then(function (response) {
+                if (response.data && response.data.status === 'success') {
+                    self.post = response.data.post;
+                    self.commentText = '';
+                }
+            })
         }
     }
 });

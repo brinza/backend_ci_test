@@ -59,13 +59,14 @@ class Main_page extends MY_Controller
     }
 
 
-    public function comment($post_id,$message){ // or can be App::get_ci()->input->post('news_id') , but better for GET REQUEST USE THIS ( tests )
-
+    public function comment()
+    {
         if (!User_model::is_logged()){
             return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
         }
 
-        $post_id = intval($post_id);
+        $post_id = $this->input->input_stream('post_id');
+        $message = $this->input->input_stream('message');
 
         if (empty($post_id) || empty($message)){
             return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
@@ -78,6 +79,11 @@ class Main_page extends MY_Controller
             return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
         }
 
+        Comment_model::create([
+            'user_id' => User_model::get_user()->get_id(),
+            'assign_id' => $post_id,
+            'text' => $message,
+        ]);
 
         $posts =  Post_model::preparation($post, 'full_info');
         return $this->response_success(['post' => $posts]);

@@ -147,7 +147,7 @@
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Post {{post.id}}</h5>
+          <h5 class="modal-title" id="postModalTitle">Post {{post.id}}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -178,12 +178,12 @@
                   <span>{{likes}}</span>
                 </div>
               </div>
-              <p class="card-text" v-for="comment in post.coments"> {{comment.user.personaname + ' - '}}<small class="text-muted">{{comment.text}}</small></p>
+              <p class="card-text" v-for="comment in post.comments">{{comment.user.personaname + ' - '}}<small class="text-muted">{{comment.text}}</small></p>
               <form class="form-inline">
                 <div class="form-group">
                   <input type="text" class="form-control" id="addComment" v-model="commentText">
                 </div>
-                <button type="submit" class="btn btn-primary">Add comment</button>
+                <button type="submit" class="btn btn-primary" @click.prevent="comment(post.id)">Add comment</button>
               </form>
             </div>
           </div>
