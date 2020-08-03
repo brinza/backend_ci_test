@@ -26,16 +26,20 @@ class Main_page extends MY_Controller
     public function index()
     {
         $user = User_model::get_user();
-
-
-
         App::get_ci()->load->view('main_page', ['user' => User_model::preparation($user, 'default')]);
     }
 
     public function get_all_posts()
     {
-        $posts =  Post_model::preparation(Post_model::get_all(), 'main_page');
-        return $this->response_success(['posts' => $posts]);
+        $ret = [];
+        $ret['posts'] =  Post_model::preparation(Post_model::get_all(), 'main_page');
+        if (User_model::is_logged()) {
+            $ret['user'] = [
+                'wallet_balance' => User_model::get_user()->get_wallet_balance(),
+                'likes_balance' => User_model::get_user()->get_likes_balance(),
+            ];
+        }
+        return $this->response_success($ret);
     }
 
     public function get_post($post_id){ // or can be $this->input->post('news_id') , but better for GET REQUEST USE THIS
@@ -113,9 +117,21 @@ class Main_page extends MY_Controller
         redirect(site_url('/'));
     }
 
-    public function add_money(){
-        // todo: add money to user logic
-        return $this->response_success(['amount' => rand(1,55)]);
+    public function add_money()
+    {
+        if (!User_model::is_logged()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        }
+        $sum = floatval($this->input->input_stream('sum'));
+        if (!$sum) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
+        $user = User_model::get_user();
+        App::get_ci()->s->start_trans();
+        $user->set_wallet_balance($user->get_wallet_balance() + $sum);
+        $user->set_wallet_total_refilled($user->get_wallet_total_refilled() + $sum);
+        App::get_ci()->s->commit();
+        return $this->response_success(['amount' => $user->get_wallet_balance()]);
     }
 
     public function buy_boosterpack(){

@@ -38,6 +38,12 @@
               </button>
             <? }?>
         </li>
+        <li class="nav-item text-white" v-if="<?= User_model::is_logged() ? 1 : 0; ?>">
+          Balance: {{walletBalance}}$
+        </li>
+        <li class="nav-item text-white" v-if="<?= User_model::is_logged() ? 1 : 0; ?>">
+          Available likes: {{likesBalance}}
+        </li>
       </div>
 <!--      <div class="collapse navbar-collapse" id="navbarTogglerDemo01">-->
 <!--        <li class="nav-item">-->
@@ -226,7 +232,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Add money</h5>
+          <h5 class="modal-title" id="addMoneyModalTitle">Add money</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -235,7 +241,7 @@
           <form>
             <div class="form-group">
               <label for="exampleInputEmail1">Enter sum</label>
-              <input type="text" class="form-control" id="addBalance" v-model="addSum" required>
+              <input type="text" class="form-control" id="addBalance" v-model.number="addSum" required>
               <div class="invalid-feedback" v-if="invalidSum">
                 Please write a sum.
               </div>

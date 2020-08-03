@@ -13,6 +13,8 @@ var app = new Vue({
         amount: 0,
         justLiked: false,
         likes: 0,
+        walletBalance: 0,
+        likesBalance: 0,
         commentText: '',
         packs: [
             {
@@ -41,6 +43,10 @@ var app = new Vue({
             .get('/main_page/get_all_posts')
             .then(function (response) {
                 self.posts = response.data.posts;
+                if (response.data.user) {
+                    self.walletBalance = response.data.user.wallet_balance;
+                    self.likesBalance = response.data.user.likes_balance;
+                }
             })
     },
     methods: {
@@ -66,18 +72,19 @@ var app = new Vue({
         },
         fiilIn: function () {
             var self = this;
-            if (self.addSum === 0) {
-                self.invalidSum = true
-            } else {
-                self.invalidSum = false
+            self.invalidSum = self.addSum <= 0;
+            if (!self.invalidSum) {
                 axios.post('/main_page/add_money', {
                     sum: self.addSum,
-                })
-                    .then(function (response) {
-                        setTimeout(function () {
-                            $('#addModal').modal('hide');
-                        }, 500);
-                    })
+                }).then(function (response) {
+                    setTimeout(function () {
+                        $('#addModal').modal('hide');
+                        self.addSum = 0;
+                        if (response.data && response.data.status === 'success') {
+                            self.walletBalance = response.data.amount;
+                        }
+                    }, 500);
+                });
             }
         },
         openPost: function (id) {
@@ -105,6 +112,7 @@ var app = new Vue({
                     if (response.data && response.data.status === 'success') {
                         self.justLiked = true;
                         self.likes = response.data.likes;
+                        self.likesBalance--;
                     }
                 })
         },
@@ -121,6 +129,7 @@ var app = new Vue({
                         }
                         return comment;
                     });
+                    self.likesBalance--;
                 }
             });
         },
