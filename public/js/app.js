@@ -108,6 +108,22 @@ var app = new Vue({
                     }
                 })
         },
+        likeComment: function (id) {
+            var self = this;
+            axios.post('/main_page/like_comment', {
+                comment_id: id,
+            }).then(function (response) {
+                if (response.data && response.data.status === 'success') {
+                    self.post.comments = self.post.comments.map(function (comment) {
+                        if (comment.id === id) {
+                            comment.likes = response.data.likes;
+                            comment.liked = true;
+                        }
+                        return comment;
+                    });
+                }
+            });
+        },
         buyPack: function (id) {
             var self = this;
             axios.post('/main_page/buy_boosterpack', {

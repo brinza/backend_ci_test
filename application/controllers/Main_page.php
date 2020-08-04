@@ -152,4 +152,31 @@ class Main_page extends MY_Controller
         return $this->response_success(['likes' => $likes]);
     }
 
+    public function like_comment()
+    {
+        if (!User_model::is_logged()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        }
+        $comment_id = intval($this->input->input_stream('comment_id'));
+        if (!$comment_id) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
+
+        try {
+            $comment = new Comment_model($comment_id);
+        } catch (EmeraldModelNoDataException $e) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+        try {
+            Comment_likes_model::like($comment);
+        } catch (UserException $e) {
+            return $this->response_error($e->getMessage());
+        } catch (Exception $e) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_INTERNAL_ERROR);
+        }
+
+        $likes = Comment_likes_model::preparation($comment->get_likes(), 'full_amount');
+        return $this->response_success(['likes' => $likes]);
+    }
 }
