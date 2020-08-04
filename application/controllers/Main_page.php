@@ -124,9 +124,32 @@ class Main_page extends MY_Controller
     }
 
 
-    public function like(){
-        // todo: add like post\comment logic
-        return $this->response_success(['likes' => rand(1,55)]); // Колво лайков под постом \ комментарием чтобы обновить
+    public function like()
+    {
+        if (!User_model::is_logged()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        }
+        $post_id = intval($this->input->input_stream('post_id'));
+        if (!$post_id) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
+
+        try {
+            $post = new Post_model($post_id);
+        } catch (EmeraldModelNoDataException $e) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+        try {
+            Post_likes_model::like($post);
+        } catch (UserException $e) {
+            return $this->response_error($e->getMessage());
+        } catch (Exception $e) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_INTERNAL_ERROR);
+        }
+
+        $likes = Post_likes_model::preparation($post->get_likes(), 'full_amount');
+        return $this->response_success(['likes' => $likes]);
     }
 
 }

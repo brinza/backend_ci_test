@@ -11,6 +11,7 @@ var app = new Vue({
         posts: [],
         addSum: 0,
         amount: 0,
+        justLiked: false,
         likes: 0,
         commentText: '',
         packs: [
@@ -85,6 +86,8 @@ var app = new Vue({
                 .get('/main_page/get_post/' + id)
                 .then(function (response) {
                     self.post = response.data.post;
+                    self.likes = response.data.post.likes;
+                    self.justLiked = false;
                     if (self.post) {
                         setTimeout(function () {
                             $('#postModal').modal('show');
@@ -95,11 +98,15 @@ var app = new Vue({
         addLike: function (id) {
             var self = this;
             axios
-                .get('/main_page/like')
-                .then(function (response) {
-                    self.likes = response.data.likes;
+                .post('/main_page/like', {
+                    post_id: id,
                 })
-
+                .then(function (response) {
+                    if (response.data && response.data.status === 'success') {
+                        self.justLiked = true;
+                        self.likes = response.data.likes;
+                    }
+                })
         },
         buyPack: function (id) {
             var self = this;

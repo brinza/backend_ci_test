@@ -128,15 +128,22 @@ class Post_model extends CI_Emerald_Model
     // generated
 
     /**
-     * @return mixed
+     * @return Post_likes_model[]
+     * @throws Exception
      */
     public function get_likes()
     {
+        $this->is_loaded(true);
+        if (!$this->likes) {
+            /** @see Post_likes_model::post_id */
+            $this->likes = Post_likes_model::getBy(['post_id' => $this->get_id()]);
+        }
         return $this->likes;
     }
 
     /**
      * @return Comment_model[]
+     * @throws Exception
      */
     public function get_comments()
     {
@@ -152,6 +159,7 @@ class Post_model extends CI_Emerald_Model
 
     /**
      * @return User_model
+     * @throws Exception
      */
     public function get_user():User_model
     {
@@ -173,7 +181,8 @@ class Post_model extends CI_Emerald_Model
     {
         parent::__construct();
 
-        App::get_ci()->load->model('Comment_model');
+        App::get_ci()->load->model(Comment_model::class);
+        App::get_ci()->load->model(Post_likes_model::class);
 
         $this->set_id($id);
     }
@@ -265,6 +274,7 @@ class Post_model extends CI_Emerald_Model
     /**
      * @param Post_model $data
      * @return stdClass
+     * @throws Exception
      */
     private static function _preparation_full_info(Post_model $data)
     {
@@ -278,15 +288,23 @@ class Post_model extends CI_Emerald_Model
 //            var_dump($d->get_user()->object_beautify()); die();
 
         $o->user = User_model::preparation($data->get_user(),'main_page');
-        $o->coments = Comment_model::preparation($data->get_comments(),'full_info');
+        $o->comments = Comment_model::preparation($data->get_comments(),'full_info');
+        $o->likes = Post_likes_model::preparation($data->get_likes(), 'full_amount');
 
-        $o->likes = rand(0, 25);
+        if (User_model::is_logged()) {
+            $user_like = App::get_ci()->s
+                ->from(Post_likes_model::CLASS_TABLE)
+                ->where('user_id', User_model::get_user()->get_id())
+                ->where('post_id', $data->get_id())
+                ->one();
+            $o->liked = !empty($user_like);
+        } else {
+            $o->liked = false;
+        }
 
 
         $o->time_created = $data->get_time_created();
         $o->time_updated = $data->get_time_updated();
-
-        $ret[] = $o;
 
 
         return $o;

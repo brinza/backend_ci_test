@@ -180,6 +180,24 @@ ALTER TABLE `post`
 --
 ALTER TABLE `user`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+ALTER TABLE `user`
+    ADD `likes_balance` int(11) UNSIGNED NOT NULL DEFAULT '0';
+
+CREATE TABLE `post_likes`
+(
+    `id`           int(11)          NOT NULL AUTO_INCREMENT,
+    `user_id`      int(11) UNSIGNED NOT NULL,
+    `post_id`      int(11)          NOT NULL,
+    `amount`       int(11) UNSIGNED NOT NULL,
+    `time_created` timestamp        NULL DEFAULT CURRENT_TIMESTAMP,
+    `time_updated` timestamp        NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`post_id`) REFERENCES post (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES user (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

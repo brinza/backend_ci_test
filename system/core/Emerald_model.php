@@ -281,4 +281,54 @@ class CI_Emerald_Model {
         }
         return (new static)->set($row);
     }
+
+    /**
+     * @param array $params
+     * @return static[]
+     */
+    public static function getBy(array $params)
+    {
+        $s = App::get_ci()->s->from(static::CLASS_TABLE);
+        foreach ($params as $field => $value) {
+            $s->where($field, $value);
+        }
+        $rows = $s->many();
+        $models = [];
+        foreach ($rows as $row) {
+            $models[] = (new static)->set($row);
+        }
+        return $models;
+    }
+
+    /**
+     * @param array $params
+     * @param bool $for_update
+     * @return static|null
+     */
+    public static function getOneBy(array $params, bool $for_update = false)
+    {
+        $s = App::get_ci()->s->from(static::CLASS_TABLE);
+        foreach ($params as $field => $value) {
+            $s->where($field, $value);
+        }
+        $for_update && $s->for_update();
+        $row = $s->one();
+        if (!$row) {
+            return null;
+        }
+        return (new static)->set($row);
+    }
+
+    public static function create(array $data)
+    {
+        App::get_ci()->s->from(static::CLASS_TABLE)->insert($data)->execute();
+        return new static(App::get_ci()->s->get_insert_id());
+    }
+
+    public function delete()
+    {
+        $this->is_loaded(true);
+        App::get_ci()->s->from(static::CLASS_TABLE)->where(['id' => $this->get_id()])->delete()->execute();
+        return (App::get_ci()->s->get_affected_rows() > 0);
+    }
 }
