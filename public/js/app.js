@@ -11,6 +11,7 @@ var app = new Vue({
         posts: [],
         addSum: 0,
         amount: 0,
+        message: '',
         justLiked: false,
         likes: 0,
         walletBalance: 0,
@@ -139,12 +140,18 @@ var app = new Vue({
                 id: id,
             })
                 .then(function (response) {
-                    self.amount = response.data.amount
-                    if (self.amount !== 0) {
-                        setTimeout(function () {
-                            $('#amountModal').modal('show');
-                        }, 500);
+                    if (response.data && response.data.status === 'success') {
+                        self.amount = response.data.amount;
+                        self.message = response.data.message;
+                        self.walletBalance = response.data.wallet_balance;
+                        self.likesBalance = response.data.likes_balance;
+                    } else {
+                        self.amount = '0';
+                        self.message = response.data.error_message;
                     }
+                    setTimeout(function () {
+                        $('#amountModal').modal('show');
+                    }, 500);
                 })
         },
         comment: function (id) {

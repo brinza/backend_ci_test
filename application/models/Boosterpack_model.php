@@ -124,4 +124,33 @@ class Boosterpack_model extends CI_Emerald_Model
         return (App::get_ci()->s->get_affected_rows() > 0);
     }
 
+    protected function get_likes()
+    {
+        $max = intval( $this->get_bank() + $this->get_price());
+        $amount = rand(1, $max);
+        $new_bank = $this->get_bank() + $this->get_price() - $amount;
+        $this->set_bank($new_bank);
+        return $amount;
+    }
+
+    public function buy(User_model $user)
+    {
+        $wallet_balance = $user->get_wallet_balance() - $this->get_price();
+        if ($wallet_balance < 0) {
+            throw new UserException('Not enough money');
+        }
+        $amount = $this->get_likes();
+        $likes_balance = $user->get_likes_balance() + $amount;
+        $total_withdrawn = $user->get_wallet_total_withdrawn() + $this->get_price();
+
+        App::get_ci()->s->start_trans();
+
+        $user->set_wallet_balance($wallet_balance);
+        $user->set_likes_balance($likes_balance);
+        $user->set_wallet_total_withdrawn($total_withdrawn);
+
+        App::get_ci()->s->commit();
+
+        return $amount;
+    }
 }

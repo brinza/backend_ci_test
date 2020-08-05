@@ -16,6 +16,7 @@ class Main_page extends MY_Controller
         App::get_ci()->load->model('User_model');
         App::get_ci()->load->model('Login_model');
         App::get_ci()->load->model('Post_model');
+        App::get_ci()->load->model(Boosterpack_model::class);
 
         if (is_prod())
         {
@@ -134,11 +135,38 @@ class Main_page extends MY_Controller
         return $this->response_success(['amount' => $user->get_wallet_balance()]);
     }
 
-    public function buy_boosterpack(){
-        // todo: add money to user logic
-        return $this->response_success(['amount' => rand(1,55)]);
-    }
+    public function buy_boosterpack()
+    {
+        if (!User_model::is_logged()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        }
+        $id = intval($this->input->input_stream('id'));
+        if (!$id) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
 
+        try {
+            $boosterpack = new Boosterpack_model($id);
+        } catch (EmeraldModelNoDataException $ex) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+
+        try {
+            $user = User_model::get_user();
+            $amount = $boosterpack->buy($user);
+        } catch (UserException $e) {
+            return $this->response_error($e->getMessage());
+        } catch (Exception $e) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_INTERNAL_ERROR);
+        }
+
+        return $this->response_success([
+            'amount' => $amount,
+            'message' => 'Operation completed successfully',
+            'wallet_balance' => $user->get_wallet_balance(),
+            'likes_balance' => $user->get_likes_balance(),
+        ]);
+    }
 
     public function like()
     {
