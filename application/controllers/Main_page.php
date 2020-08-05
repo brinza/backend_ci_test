@@ -17,6 +17,7 @@ class Main_page extends MY_Controller
         App::get_ci()->load->model('Login_model');
         App::get_ci()->load->model('Post_model');
         App::get_ci()->load->model(Boosterpack_model::class);
+        App::get_ci()->load->model(Log_model::class);
 
         if (is_prod())
         {
@@ -131,6 +132,7 @@ class Main_page extends MY_Controller
         App::get_ci()->s->start_trans();
         $user->set_wallet_balance($user->get_wallet_balance() + $sum);
         $user->set_wallet_total_refilled($user->get_wallet_total_refilled() + $sum);
+        Log_model::create_money_log($user, $sum);
         App::get_ci()->s->commit();
         return $this->response_success(['amount' => $user->get_wallet_balance()]);
     }
@@ -222,5 +224,27 @@ class Main_page extends MY_Controller
 
         $likes = Comment_likes_model::preparation($comment->get_likes(), 'full_amount');
         return $this->response_success(['likes' => $likes]);
+    }
+
+    /**
+     * Метод возвращает логи изменения балансов при покупке пакета или при пополнении счета
+     * Объединяет п.4 и п.5 задания по фронт-енду
+     */
+    public function get_balances_log()
+    {
+        if (!User_model::is_logged()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        }
+        $user = User_model::get_user();
+        //TODO dataProvider
+        $data = Log_model::getBy([
+            'user_id' => $user->get_id(),
+        ]);
+        $log = Log_model::preparation($data, 'balances_log');
+        return $this->response_success([
+            'log' => $log,
+            'wallet_total_refilled' => $user->get_wallet_total_refilled(),
+            'wallet_total_withdrawn' => $user->get_wallet_total_withdrawn(),
+        ]);
     }
 }

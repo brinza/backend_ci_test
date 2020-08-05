@@ -286,7 +286,7 @@ class CI_Emerald_Model {
      * @param array $params
      * @return static[]
      */
-    public static function getBy(array $params)
+    public static function getBy(array $params = [])
     {
         $s = App::get_ci()->s->from(static::CLASS_TABLE);
         foreach ($params as $field => $value) {

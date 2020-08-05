@@ -44,6 +44,11 @@
         <li class="nav-item text-white" v-if="<?= User_model::is_logged() ? 1 : 0; ?>">
           Available likes: {{likesBalance}}
         </li>
+        <li class="nav-item" v-if="<?= User_model::is_logged() ? 1 : 0; ?>">
+          <button type="button" class="btn btn-secondary my-2 my-sm-0" type="submit" data-toggle="modal"
+                  @click="getBalancesLog()">Balance history
+          </button>
+        </li>
       </div>
 <!--      <div class="collapse navbar-collapse" id="navbarTogglerDemo01">-->
 <!--        <li class="nav-item">-->
@@ -274,7 +279,57 @@
       </div>
     </div>
   </div>
+  <!-- Modal -->
+  <div class="modal fade" id="balancesLogModal" tabindex="-1" role="dialog" aria-labelledby="balancesLogModal"
+       aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="balancesLogModalTitle">Balance history</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3 class="text-center" v-if="message">{{message}}</h3>
+          <h3 class="text-center" v-if="!message">Wallet total refilled: {{answer.wallet_total_refilled}}$</h3>
+          <h3 class="text-center" v-if="!message">Wallet total withdrawn: {{answer.wallet_total_withdrawn}}$</h3>
+          <table class="table">
+            <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Operation type</th>
+              <th scope="col">Аmount</th>
+              <th scope="col">Details</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="row in answer.log">
+              <td>{{row.time_created}}</td>
+
+              <td v-if="row.type === 1">add balance</td>
+              <td v-if="row.type === 1">+{{row.content.sum}}$</td>
+              <td v-if="row.type === 1">wallet balance: {{row.content.wallet_balance}}$</td>
+              <td v-if="row.type === 1"></td>
+              <td v-if="row.type === 1"></td>
+
+              <td v-if="row.type === 2">buy boosterpack</td>
+              <td v-if="row.type === 2">-{{row.content.price}}$</td>
+              <td v-if="row.type === 2">wallet balance: {{row.content.wallet_balance}}$</td>
+              <td v-if="row.type === 2">likes: +{{row.content.likes}}</td>
+              <td v-if="row.type === 2">likes balance: {{row.content.likes_balance}}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
+
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
         integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"

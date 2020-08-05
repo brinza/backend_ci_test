@@ -17,6 +17,7 @@ var app = new Vue({
         walletBalance: 0,
         likesBalance: 0,
         commentText: '',
+        answer: {},
         packs: [
             {
                 id: 1,
@@ -165,7 +166,22 @@ var app = new Vue({
                     self.commentText = '';
                 }
             })
-        }
+        },
+        getBalancesLog: function () {
+            var self = this;
+            axios.get('/main_page/get_balances_log').then(function (response) {
+                if (response.data && response.data.status === 'success') {
+                    self.message = '';
+                    self.answer = response.data;
+                } else {
+                    self.message = response.data.error_message;
+                    self.answer = {};
+                }
+                setTimeout(function () {
+                    $('#balancesLogModal').modal('show');
+                }, 500);
+            });
+        },
     }
 });
 

@@ -329,7 +329,6 @@ class User_model extends CI_Emerald_Model {
         return $o;
     }
 
-
     /**
      * @param User_model $data
      * @return stdClass

@@ -148,6 +148,7 @@ class Boosterpack_model extends CI_Emerald_Model
         $user->set_wallet_balance($wallet_balance);
         $user->set_likes_balance($likes_balance);
         $user->set_wallet_total_withdrawn($total_withdrawn);
+        Log_model::create_boosterpack_log($user, $this, $amount);
 
         App::get_ci()->s->commit();
 
