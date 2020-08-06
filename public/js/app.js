@@ -17,7 +17,9 @@ var app = new Vue({
         walletBalance: 0,
         likesBalance: 0,
         commentText: '',
+        subcommentText: '',
         answer: {},
+        commentV: {},
         packs: [
             {
                 id: 1,
@@ -155,9 +157,9 @@ var app = new Vue({
                     }, 500);
                 })
         },
-        comment: function (id) {
+        addComment: function (id) {
             var self = this;
-            axios.post('/main_page/comment', {
+            axios.post('/main_page/add_comment', {
                 post_id: id,
                 message: self.commentText
             }).then(function (response) {
@@ -181,6 +183,33 @@ var app = new Vue({
                     $('#balancesLogModal').modal('show');
                 }, 500);
             });
+        },
+        getSubcomments: function (id) {
+            var self = this;
+            axios.get('/main_page/get_subcomments/' + id).then(function (response) {
+                if (response.data && response.data.status === 'success') {
+                    self.message = '';
+                    self.commentV = response.data.comment;
+                } else {
+                    self.message = response.data.error_message;
+                    self.commentV = {};
+                }
+                setTimeout(function () {
+                    $('#subcommentsModal').modal('show');
+                }, 500);
+            });
+        },
+        addSubcomment: function (id) {
+            var self = this;
+            axios.post('/main_page/add_subcomment', {
+                comment_id: id,
+                text: self.subcommentText,
+            }).then(function (response) {
+                if (response.data && response.data.status === 'success') {
+                    self.commentV = response.data.comment;
+                    self.subcommentText = '';
+                }
+            })
         },
     }
 });

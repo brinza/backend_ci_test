@@ -225,6 +225,11 @@ CREATE TABLE `log`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;
 
+ALTER TABLE `comment`
+    ADD `parent_id` int(11) DEFAULT NULL,
+    MODIFY `assign_id` int(11) UNSIGNED DEFAULT NULL,
+    ADD CONSTRAINT parent_id FOREIGN KEY (`parent_id`) REFERENCES `comment` (`id`);
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

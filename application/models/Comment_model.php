@@ -15,6 +15,8 @@ class Comment_model extends CI_Emerald_Model
     protected $user_id;
     /** @var int */
     protected $assing_id;
+    /** @var int */
+    protected $parent_id;
     /** @var string */
     protected $text;
 
@@ -226,6 +228,8 @@ class Comment_model extends CI_Emerald_Model
         {
             case 'full_info':
                 return self::_preparation_full_info($data);
+            case 'subcomments':
+                return self::_preparation_subcomments($data);
             default:
                 throw new Exception('undefined preparation type');
         }
@@ -267,6 +271,30 @@ class Comment_model extends CI_Emerald_Model
         }
 
 
+        return $ret;
+    }
+
+    private static function _preparation_subcomments(Comment_model $data)
+    {
+        $ret = [];
+        $subcomments = static::getBy(['parent_id' => $data->get_id()]);
+        foreach ($subcomments as $d){
+            $o = new stdClass();
+            $o->id = $d->get_id();
+            $o->text = $d->get_text();
+            $o->user = $d->get_user()->get_personaname();
+            $o->likes = Comment_likes_model::preparation($d->get_likes(), 'full_amount');
+            if (User_model::is_logged()) {
+                $user_like = Comment_likes_model::getOneBy([
+                    'user_id' => User_model::get_user()->get_id(),
+                    'comment_id' => $d->get_id(),
+                ]);
+                $o->liked = !empty($user_like);
+            } else {
+                $o->liked = false;
+            }
+            $ret[] = $o;
+        }
         return $ret;
     }
 

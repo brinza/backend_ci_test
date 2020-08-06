@@ -65,7 +65,7 @@ class Main_page extends MY_Controller
     }
 
 
-    public function comment()
+    public function add_comment()
     {
         if (!User_model::is_logged()){
             return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
@@ -246,5 +246,50 @@ class Main_page extends MY_Controller
             'wallet_total_refilled' => $user->get_wallet_total_refilled(),
             'wallet_total_withdrawn' => $user->get_wallet_total_withdrawn(),
         ]);
+    }
+
+    public function get_subcomments($comment_id)
+    {
+        $comment_id = intval($comment_id);
+        if (!$comment_id) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
+        try {
+            $comment = new Comment_model($comment_id);
+        } catch (EmeraldModelNoDataException $e) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+        $subcomments = Comment_model::preparation($comment, 'subcomments');
+        return $this->response_success(['comment' => [
+            'id' => $comment_id,
+            'subcomments' => $subcomments,
+        ]]);
+    }
+
+    public function add_subcomment()
+    {
+        if (!User_model::is_logged()) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NEED_AUTH);
+        }
+        $comment_id = intval($this->input->input_stream('comment_id'));
+        $text = trim($this->input->input_stream('text'));
+        if (!$comment_id || !$text) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_WRONG_PARAMS);
+        }
+        try {
+            $comment = new Comment_model($comment_id);
+        } catch (EmeraldModelNoDataException $ex) {
+            return $this->response_error(CI_Core::RESPONSE_GENERIC_NO_DATA);
+        }
+        Comment_model::create([
+            'user_id' => User_model::get_user()->get_id(),
+            'parent_id' => $comment_id,
+            'text' => $text,
+        ]);
+        $subcomments = Comment_model::preparation($comment, 'subcomments');
+        return $this->response_success(['comment' => [
+            'id' => $comment_id,
+            'subcomments' => $subcomments,
+        ]]);
     }
 }

@@ -190,8 +190,8 @@
                 </div>
               </div>
 
-              <div class="card-text" v-for="comment in post.comments">
-                <p>
+              <div class="card-text d-flex justify-content-between" v-for="comment in post.comments">
+                <div>
                   <small class="text-primary">{{comment.user.personaname + ' - '}}</small>
                   <small class="text-secondary">{{comment.text}}</small>
                   <span class="heart" @click="likeComment(comment.id)">
@@ -213,14 +213,19 @@
                     </span>
                   </span>
                   <span>{{comment.likes}}</span>
-                </p>
+                </div>
+                <div>
+                  <small class="text-secondary" @click="getSubcomments(comment.id)">
+                    Read subcomments
+                  </small>
+                </div>
               </div>
 
               <form class="form-inline">
                 <div class="form-group">
                   <input type="text" class="form-control" id="addComment" v-model="commentText">
                 </div>
-                <button type="submit" class="btn btn-primary" @click.prevent="comment(post.id)">Add comment</button>
+                <button type="submit" class="btn btn-primary" @click.prevent="addComment(post.id)">Add comment</button>
               </form>
             </div>
           </div>
@@ -323,6 +328,44 @@
             </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal TODO tree view. Для полноценного дерева нужно чуть больше времени -->
+  <div class="modal fade" id="subcommentsModal" tabindex="-1" role="dialog" aria-labelledby="commentModal"
+       aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="commentModalTitle">Comments</h3>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3 class="text-center" v-if="message">{{message}}</h3>
+          <div class="card-text d-flex justify-content-between" v-for="subcomment in commentV.subcomments">
+            <div>
+              <small class="text-primary">{{subcomment.user + ' - '}}</small>
+              <small class="text-secondary">{{subcomment.text}}</small>
+            </div>
+            <div>
+              <small class="text-secondary" @click="getSubcomments(subcomment.id)">
+                Read subcomments
+              </small>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <form class="form-inline">
+            <div class="form-group">
+              <input type="text" class="form-control" id="addCommentModal" v-model="subcommentText">
+            </div>
+            <button type="submit" class="btn btn-primary" @click.prevent="addSubcomment(commentV.id)">
+              Add comment
+            </button>
+          </form>
         </div>
       </div>
     </div>
